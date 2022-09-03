@@ -66,12 +66,6 @@ def extract() -> Table:
 
 
 def main():
-    page = requests.get(URL)
-    soup = bs(page.content, "html.parser")
-    words: ResultSet[Tag] = soup.find_all("td", class_="column-2")
-    tpe = soup.find_all("td", class_="column-3")
-    lvl = soup.find_all("td", class_="column-4")
-    swe = soup.find_all("td", class_="column-5")
     t1: Table = extract()
 
     with open("../../assets/3k.csv", "a") as f:

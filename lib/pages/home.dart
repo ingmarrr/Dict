@@ -17,13 +17,22 @@ class HomePage extends ConsumerWidget {
       body: Center(
         child: Container(
           padding: EdgeInsets.symmetric(
-            horizontal: mq.size.width * .1,
+            horizontal: mq.size.width * .05,
             vertical: mq.size.height * .05,
           ),
           child: FutureBuilder<Collection>(
             future: Collection.fromCSV('assets/3k.csv'),
             initialData: Collection.empty(),
-            builder: (context, snapshot) => DataPage(snapshot),
+            builder: (context, snapshot) => Stack(children: [
+              Align(
+                alignment: Alignment.topLeft,
+                child: SizedBox(
+                  height: 300,
+                  width: 300,
+                  child: DataPage(snapshot),
+                ),
+              ),
+            ]),
           ),
         ),
       ),
@@ -46,17 +55,18 @@ class DataPageState extends ConsumerState<DataPage> {
     final pageController = PageController();
 
     return PageView.builder(
-        controller: pageController,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount:
-            widget.snapshot.data != null ? widget.snapshot.data!.length : 0,
-        itemBuilder: (ctx, idx) => Card(
-              color: Theme.of(context).colorScheme.secondary,
-              child: FlipCard(
-                widget.snapshot.data!.items[idx],
-                controller: pageController,
-              ),
-            ));
+      controller: pageController,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount:
+          widget.snapshot.data != null ? widget.snapshot.data!.length : 0,
+      itemBuilder: (ctx, idx) => Card(
+        color: Theme.of(context).colorScheme.secondary,
+        child: FlipCard(
+          widget.snapshot.data!.items[idx],
+          controller: pageController,
+        ),
+      ),
+    );
   }
 }
 
@@ -86,11 +96,13 @@ class _FlipCardState extends ConsumerState<FlipCard> {
           widget.controller.nextPage(
               duration: const Duration(milliseconds: 50),
               curve: Curves.easeInCubic);
+          state.state = false;
         }
         if (name == 'ARROW LEFT') {
           widget.controller.previousPage(
               duration: const Duration(milliseconds: 50),
               curve: Curves.easeInCubic);
+          state.state = false;
         }
         if (name == 'ARROW UP') {
           state.state = true;
@@ -99,97 +111,16 @@ class _FlipCardState extends ConsumerState<FlipCard> {
           state.state = false;
         }
       },
-      child: Container(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                margin: const EdgeInsets.only(top: 50),
-                child: Text(state.state ? 'Swedish' : 'English',
-                    style: Theme.of(context).textTheme.headline4!),
-              ),
-            ),
-            Align(
-              alignment: Alignment.topCenter,
-              child: Container(
-                margin: const EdgeInsets.only(
-                    top: 120, left: 20, right: 20, bottom: 20),
-                decoration: BoxDecoration(
-                  color: state.state
-                      ? Colors.blue.shade700.withOpacity(.2)
-                      : Colors.transparent,
-                  border: Border.all(
-                    color: state.state
-                        ? Colors.transparent
-                        : Theme.of(context).colorScheme.onSurface,
-                  ),
-                ),
-                child: InkWell(
-                  onTap: () => state.toggle(),
-                  child: Center(
-                    child: Text(
-                      state.state ? widget.data.swe : widget.data.eng,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyLarge!
-                          .copyWith(fontSize: 40, color: Colors.blue.shade700),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 15),
-                height: 40,
-                color: Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Container(
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(.8),
-                    borderRadius: BorderRadius.circular(3)
-                    // shape: BoxShape.circle,
-                    ),
-                child: IconButton(
-                  onPressed: () => widget.controller.nextPage(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeInCubic,
-                  ),
-                  icon: const Icon(Icons.arrow_forward),
-                ),
-              ),
-            ),
-            Align(
-              alignment: Alignment.bottomLeft,
-              child: Container(
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                decoration: BoxDecoration(
-                    color:
-                        Theme.of(context).colorScheme.primary.withOpacity(.8),
-                    borderRadius: BorderRadius.circular(3)
-                    // shape: BoxShape.circle,
-                    ),
-                child: IconButton(
-                  onPressed: () => widget.controller.previousPage(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeInCubic,
-                  ),
-                  icon: const Icon(Icons.arrow_back),
-                ),
-              ),
-            ),
-          ],
-        ),
+      child: ListTile(
+        leading: Text(state.state ? 'Swedish' : 'English'),
+        title: Text(widget.data.eng),
+        subtitle: state.state ? Text(widget.data.swe) : const Text(''),
+        onTap: () => state.toggle(),
+        textColor: state.state ? Colors.white : null,
+        tileColor: state.state
+            ? Colors.blue.shade800
+            : Theme.of(context).colorScheme.primaryContainer,
+        // hoverColor: Colors.blue.shade800,
       ),
     );
   }
