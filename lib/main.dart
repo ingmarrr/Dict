@@ -58,3 +58,39 @@ class Collection {
 
   factory Collection.empty() => const Collection([], 0);
 }
+
+Future<List<String>> readFile(String path) async {
+  final _items = <String>[];
+  final bdata = await rootBundle.load('assets/$path');
+  final str = utf8.decode(bdata.buffer.asUint8List());
+
+  final lines = str.split('\n');
+  for (final line in lines) {
+    _items.add(line);
+  }
+  return _items;
+}
+
+class Tuple2<T, U> {
+  final T first;
+  final U second;
+
+  Tuple2(this.first, this.second);
+}
+
+class Tuple3<T, U, V> {
+  final T first;
+  final U second;
+  final V third;
+
+  Tuple3(this.first, this.second, this.third);
+}
+
+class Tuple4<A, B, C, D> {
+  final A first;
+  final B second;
+  final C third;
+  final D fourth;
+
+  Tuple4(this.first, this.second, this.third, this.fourth);
+}

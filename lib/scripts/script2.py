@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-import imp
+from typing import Any, Tuple
 import requests
 from bs4 import BeautifulSoup as bs
 from bs4.element import Tag
@@ -12,6 +12,9 @@ URL: str = (
 )
 
 
+RowData = Tuple[str, str, str, str]
+
+
 @dataclass()
 class Row:
     word: str
@@ -21,6 +24,16 @@ class Row:
 
     def __str__(self) -> str:
         return f"{self.word};{self.word_type};{self.lvl};{self.translation}\n"
+
+    @staticmethod
+    def empty() -> "Row":
+        return Row("", "", "", "")
+
+    @staticmethod
+    def from_data(data: list[Any]) -> "Row":
+        if len(data) != 4:
+            return Row.empty()
+        return Row(word=data[0], word_type=data[1], lvl=data[2], translation=data[3])
 
 
 @dataclass
@@ -33,17 +46,21 @@ class Table:
     def __str__(self) -> str:
         return "".join([str(row) for row in self.rows])
 
+    @staticmethod
+    def empty() -> "Table":
+        return Table([])
 
-def extract() -> Table:
-    det = '<td class="column-2">'
-    page = requests.get(URL)
+
+def extract(url: str) -> Table:
+    # det = '<td class="column-1">'
+    page = requests.get(url)
     soup = bs(page.content, "html.parser")
     cols: list[list[str]] = []
     for i in range(2, 6):
         res: ResultSet[Tag] = soup.find_all("td", class_=f"column-{i}")
         contents: list[str] = []
         for tag in res:
-            print(tag.contents)
+            # print(tag.contents)
 
             try:
                 contents.append(tag.contents[0].__str__())
@@ -66,7 +83,7 @@ def extract() -> Table:
 
 
 def main():
-    t1: Table = extract()
+    t1: Table = extract(URL)
 
     with open("../../assets/3k.csv", "a") as f:
         f.write(str(t1))
