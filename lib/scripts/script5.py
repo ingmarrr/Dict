@@ -8,6 +8,29 @@ from dataclasses import dataclass
 from script3 import fetch_soup
 
 
+def japan_urls() -> list[str]:
+    return [
+        "https://app.memrise.com/course/2022732/japanese-1/",
+        "https://app.memrise.com/course/2021170/japanese-2/",
+        "https://app.memrise.com/course/1389173/japanese-3/",
+        "https://app.memrise.com/course/1891003/japanese-4/",
+        "https://app.memrise.com/course/1891054/japanese-5/",
+        "https://app.memrise.com/course/1891011/japanese-6/",
+    ]
+
+
+def korean_urls() -> list[str]:
+    return [
+        "https://app.memrise.com/course/2141906/korean-1/",
+        "https://app.memrise.com/course/2141908/korean-2/",
+        "https://app.memrise.com/course/1125956/korean-3/",
+        "https://app.memrise.com/course/5732757/korean-4/",
+        "https://app.memrise.com/course/5732758/korean-5/",
+        "https://app.memrise.com/course/5732759/korean-6/",
+        "https://app.memrise.com/course/5732760/korean-7/",
+    ]
+
+
 def base_url(idx: int) -> str:
     if idx == 1:
         return f"https://app.memrise.com/course/99412/8000-most-common-swedish-words-part-1-of-four/1/"
@@ -58,8 +81,10 @@ def visit_lvl_page(url: str) -> TableSc5:
 
 
 def fetch_lvls() -> None:
-    for i in range(2, 8):
-        soup: BeautifulSoup = fetch_soup(base_url(i))
+    # for i in range(2, 8):
+    # soup: BeautifulSoup = fetch_soup(base_url(i))
+    for url in japan_urls():
+        soup: BeautifulSoup = fetch_soup(url)
         content: ResultSet[Tag] = soup.find_all("a", class_="level clearfix")
         print(content)
         links = [
@@ -73,7 +98,8 @@ def fetch_lvls() -> None:
             for r in res:
                 tables.append(r)
 
-        with open(f"../../assets/memrise/part{i}.csv", "a") as f:
+        name: str = url.split("/")[-2]
+        with open(f"../../assets/memrise/{name}.csv", "a") as f:
             for table in tables:
                 f.write(str(table))
 
